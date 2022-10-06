@@ -1,0 +1,7 @@
+# Project files
+.idea
+.vscode
+
+# Python cache
+__pycache__
+*/__pycache__

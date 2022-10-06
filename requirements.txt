@@ -1,0 +1,5 @@
+albumentations>=1.2.0
+opencv-python~=4.5.3.56
+torch~=1.10
+torchmetrics~=0.8.0
+torchvision~=0.11

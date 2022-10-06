@@ -1,0 +1,20 @@
+# checkpoint
+model_name: "dense_unet"
+checkpoint_path: "../history/dense_unet.pth"
+# dataset
+dataset_path: "../nyu_data"
+# resolution
+resolution: [320, 240]
+# transforms
+normalize: False
+# device
+device: "cuda"
+# outputs
+outputs_dir: "../outputs"
+# display
+verbose: 500
+# other
+random_seed: 42
+num_workers: 4
+pin_memory: True
+prefetch_factor: 2
