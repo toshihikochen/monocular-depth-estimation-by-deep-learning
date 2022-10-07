@@ -16,7 +16,7 @@ from torch.utils.data import DataLoader
 from datasets import NYU_Depth_V2
 from models import DenseUNet, EfficientUNet, ResNetUNet, VGGUNet
 from trainers import EMATrainer
-from transforms import val_transforms, val_normalize_transforms
+from transforms import val_transforms
 from utils import colorize
 
 warnings.filterwarnings("ignore")
@@ -38,8 +38,6 @@ checkpoint_path = config["checkpoint_path"]
 dataset_path = config["dataset_path"]
 # resolution
 resolution = config["resolution"]
-# transforms
-normalize = config["transforms"]
 # device
 device = config["device"]
 # outputs
@@ -68,10 +66,7 @@ else:
     torch.backends.cudnn.benchmark = True
 
 # transforms
-if normalize:
-    transforms = val_normalize_transforms(resolution)
-else:
-    transforms = val_transforms(resolution)
+transforms = val_transforms(resolution)
 
 # dataset and dataloaders
 dataset = NYU_Depth_V2(

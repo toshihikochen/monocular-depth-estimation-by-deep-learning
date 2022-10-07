@@ -5,8 +5,6 @@ checkpoint_path: "../history/dense_unet.pth"
 dataset_path: "../nyu_data"
 # resolution
 resolution: [320, 240]
-# transforms
-normalize: False
 # device
 device: "cuda"
 # outputs

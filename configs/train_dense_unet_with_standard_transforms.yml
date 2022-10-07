@@ -8,7 +8,6 @@ train_resolution: [320, 240]
 val_resolution: [320, 240]
 # transforms
 transforms_level: "light"
-normalize: False
 # training
 num_epochs: 50
 batch_size: 8

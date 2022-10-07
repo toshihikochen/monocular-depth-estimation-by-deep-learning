@@ -12,15 +12,6 @@ def val_transforms(resolution):
         A.Resize(*resolution),
 
         A.Lambda(mask=partial(_mask_resize, height=resolution[0] // 2, width=resolution[1] // 2)),
-        AP.ToTensorV2()
-    ])
-
-
-def val_normalize_transforms(resolution):
-    return A.Compose([
-        A.Resize(*resolution),
-
-        A.Lambda(mask=partial(_mask_resize, height=resolution[0] // 2, width=resolution[1] // 2)),
         A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
         AP.ToTensorV2()
     ])
