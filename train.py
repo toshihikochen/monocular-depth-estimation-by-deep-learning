@@ -14,14 +14,11 @@ import torchmetrics as tm
 from torchsummaryX import summary
 
 from datasets import NYU_Depth_V2
-from losses.depth_loss import DepthLoss
-from metrics import Log10AverageError, StructuralSimilarityIndexMeasure, ThresholdAccuracy
+from losses import Loss
+from metrics import EdgeF1Score, Log10AverageError, StructuralSimilarityIndexMeasure, ThresholdAccuracy
 from models import DenseUNet, EfficientUNet, ResNetUNet, VGGUNet
 from trainers import EMATrainer
-from transforms import val_transforms, val_normalize_transforms, \
-    light_train_transforms, light_normalize_train_transforms, \
-    standard_train_transforms, standard_normalize_train_transforms, \
-    heavy_train_transforms, heavy_normalize_train_transforms
+from transforms import val_transforms, light_train_transforms, standard_train_transforms, heavy_train_transforms
 
 warnings.filterwarnings("ignore")
 
@@ -42,7 +39,6 @@ train_resolution = config["train_resolution"]
 val_resolution = config["val_resolution"]
 # transforms
 transforms_level = config["transforms_level"]
-normalize = config["normalize"]
 # model
 model_name = config["model_name"]
 pretrained = config["pretrained"]
@@ -81,26 +77,15 @@ else:
     torch.backends.cudnn.benchmark = True
 
 # augmentations and transforms
-if normalize:
-    val_transforms = val_normalize_transforms(val_resolution)
-    if transforms_level == "light":
-        train_transforms = light_normalize_train_transforms(train_resolution)
-    elif transforms_level == "standard":
-        train_transforms = standard_normalize_train_transforms(train_resolution)
-    elif transforms_level == "heavy":
-        train_transforms = heavy_normalize_train_transforms(train_resolution)
-    else:
-        raise ValueError(f"Invalid transforms level: {transforms_level}")
+val_transforms = val_transforms(val_resolution)
+if transforms_level == "light":
+    train_transforms = light_train_transforms(train_resolution)
+elif transforms_level == "standard":
+    train_transforms = standard_train_transforms(train_resolution)
+elif transforms_level == "heavy":
+    train_transforms = heavy_train_transforms(train_resolution)
 else:
-    val_transforms = val_transforms(val_resolution)
-    if transforms_level == "light":
-        train_transforms = light_train_transforms(train_resolution)
-    elif transforms_level == "standard":
-        train_transforms = standard_train_transforms(train_resolution)
-    elif transforms_level == "heavy":
-        train_transforms = heavy_train_transforms(train_resolution)
-    else:
-        raise ValueError(f"Invalid transforms level: {transforms_level}")
+    raise ValueError(f"Invalid transforms level: {transforms_level}")
 
 # dataset and dataloaders
 train_dataset = NYU_Depth_V2(
@@ -162,7 +147,7 @@ ema_avg = lambda averaged_model_parameter, model_parameter, _: \
     model_parameter * (1 - ema_weight) + averaged_model_parameter * ema_weight
 ema_model = optim.swa_utils.AveragedModel(model, avg_fn=ema_avg)
 optimizer = optim.Adam(model.parameters(), lr=learning_rate, betas=(0.9, 0.999), weight_decay=weight_decay)
-criterion = DepthLoss()
+criterion = Loss()
 metrics = tm.MetricCollection({
     "Log10AE": Log10AverageError(),
     "MAPE": tm.MeanAbsolutePercentageError(compute_on_step=False),
@@ -171,6 +156,9 @@ metrics = tm.MetricCollection({
     "TA1": ThresholdAccuracy(threshold=1.25 ** 1),
     "TA2": ThresholdAccuracy(threshold=1.25 ** 2),
     "TA3": ThresholdAccuracy(threshold=1.25 ** 3),
+    "EdgeF1_25": EdgeF1Score(threshold=0.25),
+    "EdgeF1_50": EdgeF1Score(threshold=0.5),
+    "EdgeF1_100": EdgeF1Score(threshold=1.0),
 })
 
 print("Model summary: ")
