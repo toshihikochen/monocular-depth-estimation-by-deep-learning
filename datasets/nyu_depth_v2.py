@@ -13,11 +13,9 @@ from torch.utils.data import Dataset
 
 
 class NYU_Depth_V2(Dataset):
-    def __init__(self, data_path, csv_path, transforms, min_depth=10, max_depth=1000):
+    def __init__(self, data_path, csv_path, transforms):
         self.data_path = data_path
         self.transforms = transforms
-        self.min_depth = min_depth
-        self.max_depth = max_depth
 
         self.file_csv = pd.read_csv(os.path.join(data_path, csv_path), header=None)
 
@@ -38,8 +36,6 @@ class NYU_Depth_V2(Dataset):
         transformed = self.transforms(image=image, mask=depth)
         image = transformed["image"]
         depth = transformed["mask"]
-        depth = depth.permute(2, 0, 1)[[0]] / 255. * self.max_depth
-        depth = depth.clamp(self.min_depth, self.max_depth)
-        depth = self.max_depth / depth
+        depth = depth.permute(2, 0, 1)[[0]] / 255.0
 
         return image, depth, filename
