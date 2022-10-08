@@ -5,7 +5,7 @@ import torch.nn as nn
 
 
 class DepthLoss(nn.Module):
-    def __init__(self, alpha=math.e):
+    def __init__(self, alpha=1.0):
         super(DepthLoss, self).__init__()
         self.register_buffer("alpha", torch.tensor(alpha))
 
