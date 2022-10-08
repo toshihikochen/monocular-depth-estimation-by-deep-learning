@@ -90,7 +90,7 @@ definition:
 ## depth loss
 
 $$
-L(y, \hat y) = \lambda L_1(y, \hat y) + L_{grad}(y, \hat y) + L_{ssim}(y, \hat y)
+L(y, \hat y) = \frac{1}{n} \sum_{p}^n ln(|y-\hat y|+\alpha)
 $$
 
 ## gradient loss
@@ -108,11 +108,11 @@ $$
 ## log10 mean average error
 
 $$
-log10MAE = \frac{1}{n} \sum_{p}^n |log_{10}(y_p) - log_{10}(\hat y_p)|
+MAE_{log_{10}}(y, \hat y) = \frac{1}{n} \sum_{p}^n |log_{10}(y_p) - log_{10}(\hat y_p)|
 $$
 
 ## threshold accuracy
 
 $$
-TA = max(\frac{y_p}{\hat y_p}, \frac{\hat y_p}{y_p}) < thr \in [1.25, 1.25^2, 1.25^3]
+TA(y, \hat y) = max(\frac{y_p}{\hat y_p}, \frac{\hat y_p}{y_p}) < thr \in [1.25, 1.25^2, 1.25^3]
 $$
