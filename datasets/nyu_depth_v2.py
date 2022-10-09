@@ -13,9 +13,34 @@ from torch.utils.data import Dataset
 
 
 class NYU_Depth_V2(Dataset):
-    def __init__(self, data_path, csv_path, transforms):
+    """
+    File Structure:
+    nyu_data
+    ├── nyu2_train.csv
+    ├── nyu2_test.csv
+    ├── data
+    │   ├── nyu2_train (50688 images)
+    │   │   ├── basement_0001a_out
+    │   │   │   ├── 1.jpg -------------------> image
+    │   │   │   ├── 1.png -------------------> depth
+    │   │   │   ├── 2.jpg
+    │   │   │   ├── 2.png
+    │   │   │   ├── ...
+    │   │   ├── basement_0001b_out
+    │   │   ├── bathroom_0001_out
+    │   │   ├── ...
+    │   ├── nyu2_test (654 images)
+    │   │   ├── 00000_colors.png ------------> image
+    │   │   ├── 00000_depth.png -------------> depth
+    │   │   ├── 00001_colors.png
+    │   │   ├── 00001_depth.png
+    │   │   ├── ...
+
+    """
+    def __init__(self, data_path, csv_path, transforms, depth_scale=1000.):
         self.data_path = data_path
         self.transforms = transforms
+        self.depth_scale = depth_scale
 
         self.file_csv = pd.read_csv(os.path.join(data_path, csv_path), header=None)
 
@@ -36,6 +61,6 @@ class NYU_Depth_V2(Dataset):
         transformed = self.transforms(image=image, mask=depth)
         image = transformed["image"]
         depth = transformed["mask"]
-        depth = depth.permute(2, 0, 1)[[0]] / 255.0
+        depth = depth.permute(2, 0, 1)[[0]] / 255.0 * self.depth_scale
 
         return image, depth, filename
