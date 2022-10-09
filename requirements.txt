@@ -5,7 +5,10 @@ matplotlib
 opencv-python~=4.5.3.56
 albumentations>=1.2.0
 
-torch~=1.10
-torchvision~=0.11
-torchmetrics~=0.8.0
+tensorboard
+torch~=1.10.0
+torchvision~=0.11.0
+torchmetrics~=0.10.0
 torchsummaryx
+
+setuptools==59.5.0

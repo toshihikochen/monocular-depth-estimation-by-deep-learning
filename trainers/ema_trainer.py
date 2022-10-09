@@ -7,8 +7,8 @@ from torch.utils.data import DataLoader
 from trainers.base_trainer import BaseTrainer
 
 class EMATrainer(BaseTrainer):
-    def __init__(self, model:nn, ema_model, optimizer:optim, criterion, metrics):
-        super(EMATrainer, self).__init__(model, optimizer, criterion, metrics)
+    def __init__(self, model:nn, ema_model, optimizer:optim=None, criterion=None, metrics=None, tensorboard_dir=""):
+        super(EMATrainer, self).__init__(model, optimizer, criterion, metrics, tensorboard_dir)
         self.ema_model = ema_model
 
     def to(self, device):
@@ -39,7 +39,7 @@ class EMATrainer(BaseTrainer):
             self.train_one_batch(image, y_true)
             if i % verbose == 0:
                 print(f"Epoch {epoch} Training [{i}/{len(train_loader)}] [{self.timer(i, len(train_loader))}]")
-        train_result = self.get_metrics_dict(prefix="train_")
+        train_result = self.get_metrics_dict(prefix="train_", step=epoch)
         self.reset_metrics()
 
         # validation phase
@@ -48,7 +48,7 @@ class EMATrainer(BaseTrainer):
             self.val_one_batch(image, y_true)
             if i % verbose == 0:
                 print(f"Epoch {epoch} Validating [{i}/{len(val_loader)}] [{self.timer(i, len(val_loader))}]")
-        val_result = self.get_metrics_dict(prefix="val_")
+        val_result = self.get_metrics_dict(prefix="val_", step=epoch)
         self.reset_metrics()
 
         # ema phase
@@ -58,7 +58,7 @@ class EMATrainer(BaseTrainer):
             self.ema_one_batch(image, y_true)
             if i % verbose == 0:
                 print(f"Epoch {epoch} EMA Validating [{i}/{len(val_loader)}] [{self.timer(i, len(val_loader))}]")
-        ema_result = self.get_metrics_dict(prefix="ema_")
+        ema_result = self.get_metrics_dict(prefix="ema_", step=epoch)
         self.reset_metrics()
 
         # history

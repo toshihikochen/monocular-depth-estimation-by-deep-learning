@@ -7,6 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
 
 import torchmetrics as tm
 
@@ -14,12 +15,14 @@ from utils.timer import Timer
 
 
 class BaseTrainer:
-    def __init__(self, model:nn, optimizer:optim, criterion, metrics):
+    def __init__(self, model:nn, optimizer:optim=None, criterion=None, metrics=None, tensorboard_dir=""):
         self.model = model
         self.optimizer = optimizer
         self.criterion = criterion
         self.metrics = metrics
-        self.loss_logger = tm.MeanMetric(compute_on_step=False)
+
+        self.loss_logger = tm.MeanMetric(full_state_update=False)
+        self.writer = SummaryWriter(log_dir=os.path.join(tensorboard_dir, "logs"))
         self.timer = Timer()
 
         self.history = pd.DataFrame()
@@ -83,7 +86,7 @@ class BaseTrainer:
             self.train_one_batch(image, y_true)
             if i % verbose == 0:
                 print(f"Epoch {epoch} Training [{i}/{len(train_loader)}] [{self.timer(i, len(train_loader))}]")
-        train_result = self.get_metrics_dict(prefix="train_")
+        train_result = self.get_metrics_dict(prefix="train_", step=epoch)
         self.reset_metrics()
 
         self.set_train_mode(False)
@@ -92,7 +95,7 @@ class BaseTrainer:
             self.val_one_batch(image, y_true)
             if i % verbose == 0:
                 print(f"Epoch {epoch} Validating [{i}/{len(val_loader)}] [{self.timer(i, len(val_loader))}]")
-        val_result = self.get_metrics_dict(prefix="val_")
+        val_result = self.get_metrics_dict(prefix="val_", step=epoch)
         self.reset_metrics()
 
         # history
@@ -119,12 +122,17 @@ class BaseTrainer:
         for i, (image, _, filenames) in enumerate(test_loader, 1):
             yield self.test_one_batch(image), filenames
 
-    def get_metrics_dict(self, prefix):
-        loss = self.loss_logger.compute().cpu().item()
+    def get_metrics_dict(self, prefix, step):
         time = self.timer.stop()
+        loss = self.loss_logger.compute().cpu().item()
         self.metrics.prefix = prefix
-        metrics = {k: float(v) for k, v in self.metrics.compute().items()}
-        return {f"{prefix}loss": loss, f"{prefix}time": time, **metrics}
+        metrics = {}
+        for name, metric in self.metrics.items():
+            value = metric.compute().cpu().item()
+            self.writer.add_scalar(f"{prefix}{name}", value, step)
+            metrics[name] = value
+
+        return {f"{prefix}loss": loss, f"{prefix}time": int(time), **metrics}
 
     def reset_metrics(self):
         self.timer.reset()
@@ -154,6 +162,9 @@ class BaseTrainer:
         return checkpoints
 
     def verbose(self, result):
-        display = lambda v: f"{v:.5f}" if v is float else v
-        string = " - ".join([f"{k}: {display(v)}" for k, v in result.items()])
+        def _format(k, v):
+            if isinstance(v, float):
+                return f"{k}: {v:.4f}"
+            return f"{k}: {v}"
+        string = " - ".join([_format(k, v) for k, v in result.items()])
         print(string)
