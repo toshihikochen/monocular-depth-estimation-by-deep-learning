@@ -9,7 +9,7 @@ class StructuralSimilarityIndexMeasure(tm.Metric):
         self.add_state("step", torch.tensor(0.0), dist_reduce_fx="sum")
 
     def update(self, sr_image, hr_image):
-        self.ssim += torch.clamp(tm.functional.structural_similarity_index_measure(sr_image, hr_image), 0, 1)
+        self.ssim += tm.functional.structural_similarity_index_measure(sr_image, hr_image)
         self.step += 1
 
     def compute(self):
