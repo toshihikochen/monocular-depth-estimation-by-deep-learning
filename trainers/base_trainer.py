@@ -104,7 +104,10 @@ class BaseTrainer:
 
     def train(self, num_epochs, train_loader: DataLoader, val_loader: DataLoader, verbose=0,
               save_checkpoint_per_num_epochs=0, checkpoints_dir=""):
+        train_timer = Timer()
         for epoch in range(1, num_epochs + 1):
+            print(f"Training {epoch}/{num_epochs} [[{train_timer(epoch, num_epochs)}]]")
+
             result = self.train_one_epoch(epoch, train_loader, val_loader, verbose)
             self.verbose(result)
             self.history_to_csv(os.path.join(checkpoints_dir, "history.csv"))
@@ -151,5 +154,6 @@ class BaseTrainer:
         return checkpoints
 
     def verbose(self, result):
-        string = " - ".join([f"{k}: {v}" for k, v in result.items()])
+        display = lambda v: f"{v:.5f}" if v is float else v
+        string = " - ".join([f"{k}: {display(v)}" for k, v in result.items()])
         print(string)
