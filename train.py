@@ -149,9 +149,9 @@ ema_model = optim.swa_utils.AveragedModel(model, avg_fn=ema_avg)
 optimizer = optim.Adam(model.parameters(), lr=learning_rate, betas=(0.9, 0.999), weight_decay=weight_decay)
 criterion = Loss()
 metrics = tm.MetricCollection({
-    "Log10AE": Log10AverageError(),
-    "MAPE": tm.MeanAbsolutePercentageError(compute_on_step=False),
-    "RMSE": tm.MeanSquaredError(squared=False, compute_on_step=False),
+    "Log10AE": Log10AverageError(full_state_update=False),
+    "MAPE": tm.MeanAbsolutePercentageError(full_state_update=False),
+    "RMSE": tm.MeanSquaredError(squared=False),
     "SSIM": StructuralSimilarityIndexMeasure(),
     "TA1": ThresholdAccuracy(threshold=1.25 ** 1),
     "TA2": ThresholdAccuracy(threshold=1.25 ** 2),
@@ -171,6 +171,7 @@ trainer = EMATrainer(
     optimizer=optimizer,
     criterion=criterion,
     metrics=metrics,
+    tensorboard_dir=checkpoints_dir,
 )
 trainer.to(device)
 trainer.train(
