@@ -61,6 +61,8 @@ class NYU_Depth_V2(Dataset):
         transformed = self.transforms(image=image, mask=depth)
         image = transformed["image"]
         depth = transformed["mask"]
-        depth = depth.permute(2, 0, 1)[[0]] / 255.0 * self.depth_scale
+        depth = depth.permute(2, 0, 1)[[0]]
+        depth = torch.clamp(depth, 10, 250) / 255. * self.depth_scale
+        depth = torch.log(depth)
 
         return image, depth, filename
