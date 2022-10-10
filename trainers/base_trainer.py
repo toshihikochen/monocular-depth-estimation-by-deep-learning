@@ -86,7 +86,7 @@ class BaseTrainer:
             self.train_one_batch(image, y_true)
             if i % verbose == 0:
                 print(f"Epoch {epoch} Training [{i}/{len(train_loader)}] [{self.timer(i, len(train_loader))}]")
-        train_result = self.get_metrics_dict(prefix="train_", step=epoch)
+        train_result = self.get_metrics_dict(prefix="train/", step=epoch)
         self.reset_metrics()
 
         self.set_train_mode(False)
@@ -95,7 +95,7 @@ class BaseTrainer:
             self.val_one_batch(image, y_true)
             if i % verbose == 0:
                 print(f"Epoch {epoch} Validating [{i}/{len(val_loader)}] [{self.timer(i, len(val_loader))}]")
-        val_result = self.get_metrics_dict(prefix="val_", step=epoch)
+        val_result = self.get_metrics_dict(prefix="val/", step=epoch)
         self.reset_metrics()
 
         # history
@@ -129,7 +129,7 @@ class BaseTrainer:
         metrics = {}
         for name, metric in self.metrics.items():
             value = metric.compute().cpu().item()
-            self.writer.add_scalar(f"{prefix}{name}", value, step)
+            self.writer.add_scalar(name, value, step)
             metrics[name] = value
 
         return {f"{prefix}loss": loss, f"{prefix}time": int(time), **metrics}
