@@ -156,9 +156,9 @@ metrics = tm.MetricCollection({
     "TA1": ThresholdAccuracy(threshold=1.25 ** 1),
     "TA2": ThresholdAccuracy(threshold=1.25 ** 2),
     "TA3": ThresholdAccuracy(threshold=1.25 ** 3),
-    "EdgeF1_25": EdgeF1Score(threshold=0.25),
-    "EdgeF1_50": EdgeF1Score(threshold=0.5),
-    "EdgeF1_100": EdgeF1Score(threshold=1.0),
+    # "EdgeF1_25": EdgeF1Score(threshold=0.25),
+    # "EdgeF1_50": EdgeF1Score(threshold=0.5),
+    # "EdgeF1_100": EdgeF1Score(threshold=1.0),
 }).requires_grad_(False)
 
 print("Model summary: ")
