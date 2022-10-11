@@ -73,6 +73,7 @@ dataset = NYU_Depth_V2(
     data_path=dataset_path,
     csv_path="nyu2_test.csv",
     transforms=transforms,
+    is_train=False,
 )
 dataloader = DataLoader(
     dataset=dataset,
