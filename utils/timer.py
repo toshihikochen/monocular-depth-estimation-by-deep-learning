@@ -33,7 +33,7 @@ class Timer:
         self.__init__()
 
     def eta(self, current_step, total_step, current_time=time.time()):
-        self.last_eta = (current_time / current_step * (total_step - current_step)) * 0.95 + self.last_eta * 0.05
+        self.last_eta = (current_time / current_step * (total_step - current_step)) * 0.99 + self.last_eta * 0.01
         return self.last_eta
 
     def verbose(self, current_step, total_step):
