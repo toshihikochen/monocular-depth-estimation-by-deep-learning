@@ -124,7 +124,10 @@ class BaseTrainer:
 
     def get_metrics_dict(self, prefix, step):
         time = self.timer.stop()
+
         loss = self.loss_logger.compute().cpu().item()
+        self.writer.add_scalar(f"{prefix}loss", loss, step)
+
         self.metrics.prefix = prefix
         metrics = {}
         for name, metric in self.metrics.items():
