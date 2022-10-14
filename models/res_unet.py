@@ -30,11 +30,11 @@ class Encoder(nn.Module):
 
 
 class Decoder(nn.Module):
-    def __init__(self):
+    def __init__(self, norm=False, activation=0., dropout=0.):
         super(Decoder, self).__init__()
-        self.conv1 = DoubleConv(2560, 512, 3, 1)
-        self.conv2 = DoubleConv(768, 256, 3, 1)
-        self.conv3 = DoubleConv(320, 64, 3, 1)
+        self.conv1 = DoubleConv(2560, 512, kernel_size=3, padding=1, norm=norm, activation=activation, dropout=dropout)
+        self.conv2 = DoubleConv(768, 256, kernel_size=3, padding=1, norm=norm, activation=activation, dropout=dropout)
+        self.conv3 = DoubleConv(320, 64, kernel_size=3, padding=1, norm=norm, activation=activation, dropout=dropout)
         self.out = Out(64, 1)
 
     def forward(self, skips):
@@ -54,10 +54,10 @@ class Decoder(nn.Module):
 
 
 class ResNetUNet(nn.Module):
-    def __init__(self, pretrained=False):
+    def __init__(self, pretrained=False, norm=False, activation=0., dropout=0.):
         super(ResNetUNet, self).__init__()
         self.encoder = Encoder(pretrained)
-        self.decoder = Decoder()
+        self.decoder = Decoder(norm, activation, dropout)
 
     def forward(self, x):
         skips = self.encoder(x)

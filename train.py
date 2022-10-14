@@ -42,6 +42,9 @@ transforms_level = config["transforms_level"]
 # model
 model_name = config["model_name"]
 pretrained = config["pretrained"]
+norm = config["norm"]
+activation = config["activation"]
+dropout = config["dropout"]
 # training
 num_epochs = config["num_epochs"]
 batch_size = config["batch_size"]

@@ -3,6 +3,9 @@ dataset_path: "../nyu_data"
 # model
 model_name: "efficient_unet"
 pretrained: True
+norm: False
+activation: 0
+dropout: 0
 # resolution
 train_resolution: [320, 240]
 val_resolution: [320, 240]

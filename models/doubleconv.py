@@ -7,18 +7,29 @@ class DoubleConv(nn.Module):
                  norm=False, activation=0., dropout=0.):
         super(DoubleConv, self).__init__()
         self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding, bias=bias)
-        self.norm1 = nn.BatchNorm2d(out_channels) if norm else nn.Identity()
-        self.activation1 = nn.Identity() if activation is False else \
+        self.norm1 = \
+            nn.BatchNorm2d(out_channels) if norm else \
+            nn.Identity()
+        self.activation1 = \
             nn.ReLU(inplace=True) if activation == 0. else \
-            nn.LeakyReLU(activation, inplace=True)
-        self.dropout1 = nn.Dropout(p=dropout) if dropout else nn.Identity()
+            nn.LeakyReLU(activation, inplace=True) if activation > 0 else \
+            nn.Sigmoid() if activation < 0 else \
+            nn.Identity()
+        self.dropout1 = \
+            nn.Dropout(p=dropout) if dropout else \
+            nn.Identity()
 
         self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size, stride, padding, bias=bias)
-        self.norm2 = nn.BatchNorm2d(out_channels) if norm else nn.Identity()
-        self.activation2 = nn.Identity() if activation is False else \
+        self.norm2 = \
+            nn.BatchNorm2d(out_channels) if norm else \
+            nn.Identity()
+        self.activation2 = \
+            nn.Identity() if activation is False else \
             nn.ReLU(inplace=True) if activation == 0. else \
-                nn.LeakyReLU(activation, inplace=True)
-        self.dropout2 = nn.Dropout(p=dropout) if dropout else nn.Identity()
+            nn.LeakyReLU(activation, inplace=True)
+        self.dropout2 = \
+            nn.Dropout(p=dropout) if dropout else \
+            nn.Identity()
 
         self.initialize()
 
