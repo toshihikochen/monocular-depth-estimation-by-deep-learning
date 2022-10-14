@@ -45,9 +45,13 @@ class NYU_Depth_V2(Dataset):
 
     Notice:
     1. The depth image is a 3-channel image, but the depth value is the same in all channels.
-    2. The depth value of train folder is stored in 8-bit format, of test folder is stored in 16-bit format.
+    2. The depth value of train folder is stored in 8-bit format, while which of test folder is stored in 16-bit format.
     3. real maximum depth value is 10m.
     """
+
+    maximum_depth = 10.0
+    minimum_depth = 0.0
+
     def __init__(self, data_path, csv_path, transforms, is_train=True):
         self.data_path = data_path
         self.transforms = transforms
@@ -67,15 +71,19 @@ class NYU_Depth_V2(Dataset):
         image = cv2.imread(image_path)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         depth = cv2.imread(depth_path, -1)
-        depth = cv2.cvtColor(depth, cv2.COLOR_BGR2RGB)
+        depth = depth.astype(np.float32)
 
         transformed = self.transforms(image=image, mask=depth)
         image = transformed["image"]
         depth = transformed["mask"]
-        depth = depth.permute(2, 0, 1)[[0]]
+
+        if len(depth.shape) == 2:
+            depth = torch.unsqueeze(depth, dim=0)
+        elif len(depth.shape) == 3:
+            depth = depth.permute(2, 0, 1)[[0]]
 
         if self.is_train:
-            depth = depth / 255.0 * 10.0
+            depth = depth / 255.0 * self.maximum_depth
         else:
             depth = depth / 1000.0
 
