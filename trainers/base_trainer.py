@@ -38,14 +38,19 @@ class BaseTrainer:
 
     def to(self, device):
         self.device = device
-        self.model.to(device)
-        self.criterion.to(device)
-        self.metrics.to(device)
-        self.loss_logger.to(device)
-        for state in self.optimizer.state.values():
-            for k, v in state.items():
-                if torch.is_tensor(v):
-                    state[k] = v.to(device)
+        if self.model is not None:
+            self.model.to(device)
+        if self.criterion is not None:
+            self.criterion.to(device)
+        if self.metrics is not None:
+            self.metrics.to(device)
+        if self.loss_logger is not None:
+            self.loss_logger.to(device)
+        if self.optimizer is not None:
+            for state in self.optimizer.state.values():
+                for k, v in state.items():
+                    if torch.is_tensor(v):
+                        state[k] = v.to(device)
 
     def train_one_batch(self, image, y_true):
         image = image.to(self.device, dtype=torch.float32, non_blocking=True)
@@ -119,8 +124,8 @@ class BaseTrainer:
 
     def test(self, test_loader):
         self.set_train_mode(False)
-        for i, (image, _, filenames) in enumerate(test_loader, 1):
-            yield self.test_one_batch(image), filenames
+        for i, (image, y_true, filenames) in enumerate(test_loader, 1):
+            yield self.test_one_batch(image), y_true, filenames
 
     def get_metrics_dict(self, prefix, step):
         time = self.timer.stop()
