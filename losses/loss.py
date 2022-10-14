@@ -9,7 +9,9 @@ class Loss(nn.Module):
         super(Loss, self).__init__()
         self.depth_loss = DepthLoss()
         self.gradient_loss = GradientLoss()
-        # self.ssim_loss = SSIMLoss()
+        self.ssim_loss = SSIMLoss()
 
     def forward(self, y_pred, y_true):
-        return self.depth_loss(y_pred, y_true) + self.gradient_loss(y_pred, y_true)
+        return self.depth_loss(y_pred, y_true) + \
+               self.gradient_loss(y_pred, y_true) + \
+               self.ssim_loss(y_pred, y_true) / 2

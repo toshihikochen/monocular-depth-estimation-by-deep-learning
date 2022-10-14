@@ -9,4 +9,4 @@ class SSIMLoss(nn.Module):
         super(SSIMLoss, self).__init__()
 
     def forward(self, y_pred, y_true):
-        return torch.clamp((1 - tmf.structural_similarity_index_measure(y_pred, y_true)) / 2, 0, 1)
+        return 1 - tmf.structural_similarity_index_measure(y_pred, y_true)
