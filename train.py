@@ -136,13 +136,13 @@ test_dataloader = DataLoader(
 
 # model
 if model_name.lower() == "vgg_unet":
-    model = VGGUNet(pretrained=pretrained)
+    model = VGGUNet(pretrained=pretrained, norm=norm, activation=activation, dropout=dropout)
 elif model_name.lower() == "res_unet":
-    model = ResNetUNet(pretrained=pretrained)
+    model = ResNetUNet(pretrained=pretrained, norm=norm, activation=activation, dropout=dropout)
 elif model_name.lower() == "dense_unet":
-    model = DenseUNet(pretrained=pretrained)
+    model = DenseUNet(pretrained=pretrained, norm=norm, activation=activation, dropout=dropout)
 elif model_name.lower() == "efficient_unet":
-    model = EfficientUNet(pretrained=pretrained)
+    model = EfficientUNet(pretrained=pretrained, norm=norm, activation=activation, dropout=dropout)
 else:
     raise ValueError("Invalid model name")
 

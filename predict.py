@@ -31,8 +31,12 @@ with open(args.config, "r") as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
 
 # predicting arguments
-# checkpoints path
+# model
 model_name = config["model_name"]
+norm = config["norm"]
+activation = config["activation"]
+dropout = config["dropout"]
+# checkpoints path
 checkpoint_path = config["checkpoint_path"]
 # dataset
 dataset_path = config["dataset_path"]
