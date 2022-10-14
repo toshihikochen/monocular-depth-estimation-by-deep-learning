@@ -13,7 +13,8 @@ class EMATrainer(BaseTrainer):
 
     def to(self, device):
         super(EMATrainer, self).to(device)
-        self.ema_model.to(device)
+        if self.ema_model is not None:
+            self.ema_model.to(device)
 
     def ema_one_batch(self, image, y_true):
         image = image.to(self.device, dtype=torch.float32, non_blocking=True)

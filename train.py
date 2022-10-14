@@ -159,10 +159,10 @@ metrics = tm.MetricCollection({
     "TA1": ThresholdAccuracy(threshold=1.25 ** 1),
     "TA2": ThresholdAccuracy(threshold=1.25 ** 2),
     "TA3": ThresholdAccuracy(threshold=1.25 ** 3),
-    # "EdgeF1_25": EdgeF1Score(threshold=0.25),
-    # "EdgeF1_50": EdgeF1Score(threshold=0.5),
-    # "EdgeF1_100": EdgeF1Score(threshold=1.0),
-}).requires_grad_(False)
+    "EdgeF1_25": EdgeF1Score(threshold=0.25),
+    "EdgeF1_50": EdgeF1Score(threshold=0.5),
+    "EdgeF1_100": EdgeF1Score(threshold=1.0),
+}, compute_groups=[["TA1", "TA2", "TA3"], ["EdgeF1_25", "EdgeF1_50", "EdgeF1_100"]]).requires_grad_(False)
 
 print("Model summary: ")
 summary(model, torch.rand(1, 3, *train_resolution))
