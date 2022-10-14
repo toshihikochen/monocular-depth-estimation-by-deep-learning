@@ -95,6 +95,7 @@ train_dataset = NYU_Depth_V2(
     data_path=dataset_path,
     csv_path="nyu2_train.csv",
     transforms=train_transforms,
+    is_train=True
 )
 train_dataloader = DataLoader(
     dataset=train_dataset,
@@ -109,24 +110,11 @@ val_dataset = NYU_Depth_V2(
     data_path=dataset_path,
     csv_path="nyu2_test.csv",
     transforms=val_transforms,
+    is_train=False
 )
 val_dataloader = DataLoader(
     dataset=val_dataset,
     batch_size=batch_size,
-    shuffle=False,
-    num_workers=num_workers,
-    pin_memory=pin_memory,
-    drop_last=False,
-    prefetch_factor=prefetch_factor
-)
-test_dataset = NYU_Depth_V2(
-    data_path=dataset_path,
-    csv_path="nyu2_test.csv",
-    transforms=val_transforms,
-)
-test_dataloader = DataLoader(
-    dataset=test_dataset,
-    batch_size=1,
     shuffle=False,
     num_workers=num_workers,
     pin_memory=pin_memory,
