@@ -106,17 +106,16 @@ ema_model = optim.swa_utils.AveragedModel(model)
 trainer = EMATrainer(
     model=model,
     ema_model=ema_model,
-    optimizer=None,
-    criterion=None,
-    metrics=None,
 )
 trainer.to(device)
 trainer.load_checkpoint(checkpoint_path)
 
 # predict
-for y_pred, filenames in trainer.test(dataloader):
+for y_pred, _, filenames in trainer.test(dataloader):
     y_pred = y_pred[0, 0].to(torch.uint8).cpu().numpy()
-    y_pred = colorize(y_pred)
+    y_pred = colorize(y_pred, maximum=10, minimum=0)
+    y_pred = cv2.cvtColor(y_pred, cv2.COLOR_RGB2BGR)
+    y_pred = np.transpose(y_pred, (1, 0, 2))
     cv2.imwrite(os.path.join(outputs_dir, filenames[0]), y_pred)
 
 print("Done!")
