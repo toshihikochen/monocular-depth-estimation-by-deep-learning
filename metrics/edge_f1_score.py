@@ -17,6 +17,10 @@ class EdgeF1Score(tm.classification.BinaryF1Score):
             [-1, 0, 1]
         ]]], dtype=torch.float))
 
+    def _sobel(self, img: torch.Tensor) -> torch.Tensor:
+        d_img = F.conv2d(img, self.sobel, padding=1)
+        return torch.sqrt(torch.sum(d_img ** 2, dim=1))
+
     def update(self, preds, target):
         # normalize preds and target to [0, 1] range
         maximum = torch.max(torch.max(preds), torch.max(target))
@@ -24,11 +28,9 @@ class EdgeF1Score(tm.classification.BinaryF1Score):
         preds = (preds - minimum) / (maximum - minimum)
         target = (target - minimum) / (maximum - minimum)
 
-        d_preds = F.conv2d(preds, self.sobel, padding=1)
-        self.preds_edge = torch.sum(d_preds ** 2, dim=1)
-        preds_mask = torch.where(self.preds_edge > self.threshold, 1, 0)
-        d_target = F.conv2d(target, self.sobel, padding=1)
-        self.target_edge = torch.sqrt(torch.sum(d_target ** 2, dim=1))
-        target_mask = torch.where(self.target_edge > self.threshold, 1, 0)
+        preds_edge = self._sobel(preds)
+        preds_mask = torch.where(preds_edge > self.threshold, 1, 0)
+        target_edge = self._sobel(target)
+        target_mask = torch.where(target_edge > self.threshold, 1, 0)
 
         super(EdgeF1Score, self).update(preds_mask, target_mask)
