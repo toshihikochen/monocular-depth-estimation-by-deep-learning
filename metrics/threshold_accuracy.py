@@ -9,6 +9,9 @@ class ThresholdAccuracy(tm.MeanMetric):
         self.register_buffer("threshold", torch.tensor(threshold))
 
     def update(self, preds, target):
-        self.maximum = torch.maximum(preds / target, target / preds)
-        mask = torch.where(self.maximum < self.threshold, 1, 0)
+        preds = torch.clamp_min(preds, 1e-6)
+        target = torch.clamp_min(target, 1e-6)
+
+        maximum = torch.maximum(preds / target, target / preds)
+        mask = torch.where(maximum < self.threshold, 1, 0)
         super(ThresholdAccuracy, self).update(mask)

@@ -8,6 +8,6 @@ class Log10AverageError(tm.MeanAbsoluteError):
         super(Log10AverageError, self).__init__(full_state_update=full_state_update)
 
     def update(self, preds, target):
-        preds = torch.clamp_min(preds, 1e-3)
-        target = torch.clamp_min(target, 1e-3)
+        preds = torch.clamp_min(preds, 1e-6)
+        target = torch.clamp_min(target, 1e-6)
         super(Log10AverageError, self).update(torch.log10(preds), torch.log10(target))
