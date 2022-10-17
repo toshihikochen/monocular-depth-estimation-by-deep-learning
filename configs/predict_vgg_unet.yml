@@ -8,7 +8,7 @@ checkpoint_path: "../history/vgg_unet.pth"
 # dataset
 dataset_path: "../nyu_data"
 # resolution
-resolution: [320, 240]
+resolution: [240, 320]
 # device
 device: "cuda"
 # outputs

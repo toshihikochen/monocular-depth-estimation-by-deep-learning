@@ -7,8 +7,8 @@ norm: False
 activation: 0
 dropout: 0
 # resolution
-train_resolution: [320, 240]
-val_resolution: [320, 240]
+train_resolution: [240, 320]
+val_resolution: [240, 320]
 # transforms
 transforms_level: "standard"
 # training
