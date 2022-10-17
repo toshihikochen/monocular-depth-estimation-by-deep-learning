@@ -110,8 +110,8 @@ class BaseTrainer:
 
         return result
 
-    def train(self, num_epochs, train_loader: DataLoader, val_loader: DataLoader, verbose=0,
-              save_checkpoint_per_num_epochs=0, checkpoints_dir=""):
+    def train(self, num_epochs, train_loader: DataLoader, val_loader: DataLoader, epoch_scheduler=None,
+              verbose=0, save_checkpoint_per_num_epochs=0, checkpoints_dir=""):
         train_timer = Timer()
         for epoch in range(1, num_epochs + 1):
             print(f"Training {epoch}/{num_epochs} [[{train_timer(epoch, num_epochs)}]]")
@@ -119,6 +119,10 @@ class BaseTrainer:
             result = self.train_one_epoch(epoch, train_loader, val_loader, verbose)
             self.verbose(result)
             self.history_to_csv(os.path.join(checkpoints_dir, "history.csv"))
+
+            if epoch_scheduler is not None:
+                epoch_scheduler.step()
+
             if save_checkpoint_per_num_epochs > 0 and epoch % save_checkpoint_per_num_epochs == 0:
                 self.save_checkpoint(os.path.join(checkpoints_dir, f"{epoch}_epoch.pkl"))
 

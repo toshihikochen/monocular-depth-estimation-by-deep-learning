@@ -138,6 +138,7 @@ ema_avg = lambda averaged_model_parameter, model_parameter, _: \
     model_parameter * (1 - ema_weight) + averaged_model_parameter * ema_weight
 ema_model = optim.swa_utils.AveragedModel(model, avg_fn=ema_avg)
 optimizer = optim.Adam(model.parameters(), lr=learning_rate, betas=(0.9, 0.999), weight_decay=weight_decay)
+scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.1)
 criterion = Loss()
 metrics = tm.MetricCollection({
     "Log10AE": Log10AverageError(full_state_update=False),
@@ -169,6 +170,7 @@ trainer.train(
     num_epochs=num_epochs,
     train_loader=train_dataloader,
     val_loader=val_dataloader,
+    epoch_scheduler=scheduler,
     verbose=verbose,
     save_checkpoint_per_num_epochs=save_checkpoint_per_num_epochs,
     checkpoints_dir=checkpoints_dir
