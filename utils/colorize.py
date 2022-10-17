@@ -1,21 +1,23 @@
 import numpy as np
 import matplotlib.cm as cm
 
-cmap = "plasma"
-cmapper = cm.get_cmap(cmap)
 
+class Cmapper:
 
-def colorize(depth, maximum=None, minimum=None):
-    if len(depth.shape) == 4:
-        depth = depth[0]
+    def __init__(self, cmap, maximum=None, minimum=None):
+        self.maximum = maximum
+        self.minimum = minimum
 
-    # normalize
-    if minimum is None:
-        minimum = depth.min()
-    if maximum is None:
-        maximum = depth.max()
+        self.cmapper = cm.get_cmap(cmap)
 
-    depth = (depth - minimum) / (maximum - minimum)
+    def __call__(self, depth):
+        # normalize
+        if self.minimum is None:
+            self.minimum = depth.min()
+        if self.maximum is None:
+            self.maximum = depth.max()
 
-    depth = cmapper(depth, bytes=True)[:, :, :3]
-    return depth
+        depth = (depth - self.minimum) / (self.maximum - self.minimum)
+
+        depth = self.cmapper(depth, bytes=True)[:, :, :3]
+        return depth

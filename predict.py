@@ -17,7 +17,7 @@ from datasets import NYU_Depth_V2
 from models import DenseUNet, EfficientUNet, ResNetUNet, VGGUNet
 from trainers import EMATrainer
 from transforms import val_transforms
-from utils import colorize
+from utils import Cmapper
 
 warnings.filterwarnings("ignore")
 
@@ -111,11 +111,21 @@ trainer.to(device)
 trainer.load_checkpoint(checkpoint_path)
 
 # predict
-for y_pred, _, filenames in trainer.test(dataloader):
-    y_pred = y_pred[0, 0].to(torch.uint8).cpu().numpy()
-    y_pred = colorize(y_pred, maximum=10, minimum=0)
+result_cmapper = Cmapper(cmap="plasma" ,maximum=10, minimum=0)
+error_cmapper = Cmapper(cmap="BrBG" ,maximum=10, minimum=-10)
+
+for y_pred, y_true, filenames in trainer.test(dataloader):
+    y_pred, y_true = y_pred[0, 0].cpu().numpy(), y_true[0, 0].cpu().numpy()
+
+    # error between predicted and true depth and show the result in color map
+    error = y_pred - y_true
+    error = error_cmapper(error)
+    error = cv2.cvtColor(error, cv2.COLOR_RGB2BGR)
+    cv2.imwrite(os.path.join(outputs_dir, filenames[0].replace(".png", "_error.png")), error)
+
+    # show the real depth result in color map
+    y_pred = result_cmapper(y_pred)
     y_pred = cv2.cvtColor(y_pred, cv2.COLOR_RGB2BGR)
-    y_pred = np.transpose(y_pred, (1, 0, 2))
-    cv2.imwrite(os.path.join(outputs_dir, filenames[0]), y_pred)
+    cv2.imwrite(os.path.join(outputs_dir, filenames[0].replace(".png", "_output.png")), y_pred)
 
 print("Done!")
