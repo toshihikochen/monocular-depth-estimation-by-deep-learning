@@ -50,10 +50,10 @@ class Encoder(nn.Module):
 class Decoder(nn.Module):
     def __init__(self, norm=False, activation=0., dropout=0.):
         super(Decoder, self).__init__()
-        self.conv1 = DoubleConv(432, 128, kernel_size=3, padding=1, norm=norm, activation=activation, dropout=dropout)
-        self.conv2 = DoubleConv(168, 128, kernel_size=3, padding=1, norm=norm, activation=activation, dropout=dropout)
-        self.conv3 = DoubleConv(152, 128, kernel_size=3, padding=1, norm=norm, activation=activation, dropout=dropout)
-        self.conv4 = DoubleConv(144, 64, kernel_size=3, padding=1, norm=norm, activation=activation, dropout=dropout)
+        self.conv1 = DoubleConv(432, 256, kernel_size=3, padding=1, norm=norm, activation=activation, dropout=dropout)
+        self.conv2 = DoubleConv(296, 128, kernel_size=3, padding=1, norm=norm, activation=activation, dropout=dropout)
+        self.conv3 = DoubleConv(152, 64, kernel_size=3, padding=1, norm=norm, activation=activation, dropout=dropout)
+        self.conv4 = DoubleConv(80, 64, kernel_size=3, padding=1, norm=norm, activation=activation, dropout=dropout)
         self.out = Out(64, 1)
 
     def forward(self, skips):
