@@ -36,9 +36,9 @@ class Timer:
         self.last_eta = (current_time / current_step * (total_step - current_step)) * 0.99 + self.last_eta * 0.01
         return self.last_eta
 
-    def verbose(self, current_step, total_step):
+    def eta_verbose(self, current_step, total_step):
         current_time = time.time() - self.start_time
         return f"{format_time(current_time)}>{format_time(self.eta(current_step, total_step, current_time))}"
 
     def __call__(self, current_step, total_step):
-        return self.verbose(current_step, total_step)
+        return self.eta_verbose(current_step, total_step)

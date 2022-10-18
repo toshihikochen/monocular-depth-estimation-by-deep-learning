@@ -126,9 +126,11 @@ class BaseTrainer:
             if save_checkpoint_per_num_epochs > 0 and epoch % save_checkpoint_per_num_epochs == 0:
                 self.save_checkpoint(os.path.join(checkpoints_dir, f"{epoch}_epoch.pkl"))
 
-    def test(self, test_loader):
+    def test(self, test_loader, verbose=0):
         self.set_train_mode(False)
         for i, (image, y_true, filenames) in enumerate(test_loader, 1):
+            if i % verbose == 0:
+                print(f"Testing [{i}/{len(test_loader)}] [{self.timer(i, len(test_loader))}]")
             yield self.test_one_batch(image), y_true, filenames
 
     def get_metrics_dict(self, prefix, step):

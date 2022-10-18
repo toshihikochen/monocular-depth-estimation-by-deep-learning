@@ -141,4 +141,6 @@ for y_pred, y_true, filenames in trainer.test(dataloader, model_selection=model_
     y_pred = cv2.cvtColor(y_pred, cv2.COLOR_RGB2BGR)
     cv2.imwrite(os.path.join(outputs_dir, filenames[0].replace(".png", "_output.png")), y_pred)
 
-print("Done!")
+elapsed = timer.stop()
+print(f"Done! time elapsed: {elapsed:.2f} seconds, FPS: {len(dataset) / elapsed:.2f}")
+
