@@ -112,10 +112,23 @@ trainer.load_checkpoint(checkpoint_path)
 
 # predict
 result_cmapper = Cmapper(cmap="plasma" ,maximum=10, minimum=0)
-error_cmapper = Cmapper(cmap="BrBG" ,maximum=10, minimum=-10)
+result_color_bar = result_cmapper.color_bar()
+result_color_bar.figure.savefig(os.path.join(outputs_dir, "result_color_bar.png"), bbox_inches="tight")
 
-for y_pred, y_true, filenames in trainer.test(dataloader):
-    y_pred, y_true = y_pred[0, 0].cpu().numpy(), y_true[0, 0].cpu().numpy()
+error_cmapper = Cmapper(cmap="PiYG" ,maximum=10, minimum=-10)
+error_color_bar = error_cmapper.color_bar()
+error_color_bar.figure.savefig(os.path.join(outputs_dir, "error_color_bar.png"), bbox_inches="tight")
+
+timer = Timer()
+timer.start()
+for y_pred, y_true, filenames in trainer.test(dataloader, model_selection=model_selection, verbose=verbose):
+    # upsample
+    y_pred = F.interpolate(y_pred, size=(480, 640), mode="nearest")
+    y_true = F.interpolate(y_true, size=(480, 640), mode="nearest")
+
+    # convert to numpy
+    y_pred = y_pred[0, 0].cpu().numpy()
+    y_true = y_true[0, 0].cpu().numpy()
 
     # error between predicted and true depth and show the result in color map
     error = y_pred - y_true
