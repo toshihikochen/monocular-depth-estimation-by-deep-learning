@@ -28,9 +28,9 @@ class EMATrainer(BaseTrainer):
 
         return loss.detach()
 
-    def test_one_batch(self, image):
+    def test_one_batch(self, image, model):
         image = image.to(self.device, dtype=torch.float32, non_blocking=True)
-        y_pred = self.ema_model(image)
+        y_pred = model(image)
         return y_pred
 
     def train_one_epoch(self, epoch, train_loader, val_loader, verbose=0):
@@ -68,6 +68,20 @@ class EMATrainer(BaseTrainer):
         self.history = self.history.append(result, ignore_index=True)
 
         return result
+
+    def test(self, test_loader, model_selection="ema", verbose=0):
+        if model_selection.lower() == "model":
+            model = self.model
+        elif model_selection.lower() == "ema":
+            model = self.ema_model
+        else:
+            raise ValueError("model_selection should be either 'model' or 'ema'")
+
+        self.set_train_mode(False)
+        for i, (image, y_true, filenames) in enumerate(test_loader, 1):
+            if i % verbose == 0:
+                print(f"Testing [{i}/{len(test_loader)}] [{self.timer(i, len(test_loader))}]")
+            yield self.test_one_batch(image, model), y_true, filenames
 
     def save_checkpoint(self, filename):
         print(f"Saving checkpoint to {filename}")

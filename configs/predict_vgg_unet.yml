@@ -3,6 +3,7 @@ model_name: "vgg_unet"
 norm: False
 activation: 0
 dropout: 0
+model_selection: "ema"
 # checkpoint
 checkpoint_path: "../history/vgg_unet.pth"
 # dataset

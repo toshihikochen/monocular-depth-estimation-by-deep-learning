@@ -10,6 +10,7 @@ import cv2
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
@@ -17,8 +18,9 @@ from datasets import NYU_Depth_V2
 from models import DenseUNet, EfficientUNet, ResNetUNet, VGGUNet
 from trainers import EMATrainer
 from transforms import val_transforms
-from utils import Cmapper
+from utils import Cmapper, Timer
 
+# ignore warnings
 warnings.filterwarnings("ignore")
 
 # argparse
@@ -36,6 +38,7 @@ model_name = config["model_name"]
 norm = config["norm"]
 activation = config["activation"]
 dropout = config["dropout"]
+model_selection = config["model_selection"]
 # checkpoints path
 checkpoint_path = config["checkpoint_path"]
 # dataset
@@ -69,7 +72,7 @@ if random_seed is not None:
 else:
     torch.backends.cudnn.benchmark = True
 
-# transforms
+# image and depth label transforms
 transforms = val_transforms(resolution)
 
 # dataset and dataloaders
