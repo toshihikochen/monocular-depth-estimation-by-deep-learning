@@ -1,0 +1,16 @@
+# quantization
+device: cpu
+model_selection: "ema"
+checkpoint_path: "../checkpoints/ema.pkl"
+output_dir: "../quantization"
+qconfig: "fbgemm"      # fbgemm or qnnpack
+
+# calibration
+dataset_path: "../nyu_data"
+num_samples: 100
+resolution: [240, 320]
+batch_size: 1
+random_seed: 42
+num_workers: 6
+pin_memory: True
+prefetch_factor: 2
