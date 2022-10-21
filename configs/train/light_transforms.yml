@@ -1,11 +1,5 @@
 # dataset
 dataset_path: "../nyu_data"
-# model
-model_name: "dense_unet"
-pretrained: True
-norm: False
-activation: 0
-dropout: 0
 # resolution
 train_resolution: [240, 320]
 val_resolution: [240, 320]
@@ -23,9 +17,9 @@ device: "cuda"
 checkpoints_dir: "../checkpoints"
 save_checkpoint_per_num_epochs: 5
 # display
-verbose: 500
+verbose: 1000
 # other
 random_seed: 42
-num_workers: 4
+num_workers: 6
 pin_memory: True
 prefetch_factor: 2

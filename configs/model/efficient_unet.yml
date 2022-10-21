@@ -1,0 +1,5 @@
+model_name: "efficient_unet"
+pretrained: True
+norm: False
+activation: 0
+dropout: 0

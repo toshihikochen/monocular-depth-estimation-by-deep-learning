@@ -24,12 +24,17 @@ warnings.filterwarnings("ignore")
 
 # argparse
 argparser = argparse.ArgumentParser()
-argparser.add_argument("-c", "--config", type=str, help="path to config file")
+argparser.add_argument("-c", "--config", type=str, default="configs/train/train.yml", help="path to config file.")
+argparser.add_argument("-m", "--model", type=str, default="configs/model/model.yml", help="path to model parameter file.")
 args = argparser.parse_args()
 
 # read yml file
+print("config file: ", args.config)
+print("model file: ", args.model)
 with open(args.config, "r") as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
+with open(args.model, "r") as f:
+    model_config = yaml.load(f, Loader=yaml.FullLoader)
 
 # training arguments
 # dataset
@@ -40,11 +45,11 @@ val_resolution = config["val_resolution"]
 # transforms
 transforms_level = config["transforms_level"]
 # model
-model_name = config["model_name"]
-pretrained = config["pretrained"]
-norm = config["norm"]
-activation = config["activation"]
-dropout = config["dropout"]
+model_name = model_config["model_name"]
+pretrained = model_config["pretrained"]
+norm = model_config["norm"]
+activation = model_config["activation"]
+dropout = model_config["dropout"]
 # training
 num_epochs = config["num_epochs"]
 batch_size = config["batch_size"]

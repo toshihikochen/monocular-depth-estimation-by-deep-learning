@@ -1,11 +1,7 @@
-# model
-model_name: "vgg_unet"
-norm: False
-activation: 0
-dropout: 0
+# model selection
 model_selection: "ema"
 # checkpoint
-checkpoint_path: "../history/vgg_unet.pth"
+checkpoint_path: "../result/checkpoints.pkl"
 # dataset
 dataset_path: "../nyu_data"
 # resolution

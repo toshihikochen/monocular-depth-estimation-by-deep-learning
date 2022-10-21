@@ -25,19 +25,24 @@ warnings.filterwarnings("ignore")
 
 # argparse
 argparser = argparse.ArgumentParser()
-argparser.add_argument("-c", "--config", type=str, help="path to config file")
+argparser.add_argument("-c", "--config", type=str, default="configs/test/test.yml", help="path to config file. ")
+argparser.add_argument("-m", "--model", type=str, default="configs/model/model.yml", help="path to model parameter file")
 args = argparser.parse_args()
 
 # read yml file
+print("config file: ", args.config)
+print("model file: ", args.model)
 with open(args.config, "r") as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
+with open(args.model, "r") as f:
+    model_config = yaml.load(f, Loader=yaml.FullLoader)
 
 # predicting arguments
 # model
-model_name = config["model_name"]
-norm = config["norm"]
-activation = config["activation"]
-dropout = config["dropout"]
+model_name = model_config["model_name"]
+norm = model_config["norm"]
+activation = model_config["activation"]
+dropout = model_config["dropout"]
 model_selection = config["model_selection"]
 # checkpoints path
 checkpoint_path = config["checkpoint_path"]
