@@ -1,0 +1,6 @@
+# demo
+device: "cpu"
+torch_num_threads: 2
+resolution: [240, 320]
+fps: 5
+model_path: "../quantization/quantized_model.pt"
