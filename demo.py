@@ -1,5 +1,6 @@
 import argparse
 import os
+import time
 import yaml
 
 import cv2
@@ -36,7 +37,7 @@ torch.set_grad_enabled(False)
 
 # transforms
 transforms = A.Compose([
-    A.Resize(*resolution),
+    A.Resize(*resolution, interpolation=cv2.INTER_NEAREST),
     A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
     AP.ToTensorV2()
 ])
@@ -50,16 +51,18 @@ model = model.to(device)
 model.eval()
 # model = torch.jit.script(model)
 
-def predict(image):
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    image = transforms(image=image)["image"]
-    image = image.unsqueeze(0).to(device)
-    pred = model(image)
-    pred = F.interpolate(pred, scale_factor=3, mode="bilinear", align_corners=True)
-    pred = pred[0, 0].cpu().numpy()
-    pred = cmapper(pred)
-    pred = cv2.cvtColor(pred, cv2.COLOR_RGB2BGR)
-    return pred
+
+def predict(img):
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img = transforms(image=img)["image"]
+    img = img.unsqueeze(0).to(device)
+    preds = model(img)
+    preds = F.interpolate(preds, scale_factor=4, mode="bilinear", align_corners=True)
+    preds = preds[0, 0].cpu().numpy()
+    preds = cmapper(preds)
+    preds = cv2.cvtColor(preds, cv2.COLOR_RGB2BGR)
+    return preds
+
 
 # capture video
 if args.photo is None:
@@ -69,6 +72,7 @@ if args.photo is None:
     capture.set(cv2.CAP_PROP_FPS, fps)
 
     while True:
+        start = time.time()
         # read frame
         ret, image = capture.read()
         if not ret:
@@ -78,7 +82,9 @@ if args.photo is None:
         # display
         cv2.imshow("frame", image)
         cv2.imshow("pred", pred)
-
+        # fps
+        end = time.time()
+        print("fps: ", 1.0 / (end - start))
         # exit
         if cv2.waitKey(1) == ord("q"):
             break
