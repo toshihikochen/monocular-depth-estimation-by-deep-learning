@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchvision.models.vgg import vgg16
 
-from models.doubleconv import DoubleConv, Out
+from models.conv_utils import DoubleConv, Out
 
 
 class Encoder(nn.Module):

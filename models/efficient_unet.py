@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 from torchvision.models.efficientnet import efficientnet_b0
 
-from models.doubleconv import DoubleConv, Out
+from models.conv_utils import DoubleConv, Out
 
 class Encoder(nn.Module):
     def __init__(self, pretrained=False):

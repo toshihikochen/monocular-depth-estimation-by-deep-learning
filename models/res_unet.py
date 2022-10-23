@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 from torchvision.models.resnet import resnet101
 
-from models.doubleconv import DoubleConv, Out
+from models.conv_utils import DoubleConv, Out
 
 
 class Encoder(nn.Module):
