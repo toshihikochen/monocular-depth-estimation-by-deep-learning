@@ -58,12 +58,12 @@ class BaseTrainer:
 
         self.optimizer.zero_grad(set_to_none=True)
         y_pred = self.model(image)
-        loss = self.criterion(y_true, y_pred)
+        loss = self.criterion(y_pred, y_true)
         loss.backward()
         self.optimizer.step()
 
         self.loss_logger(loss.detach())
-        self.metrics(y_true, y_pred)
+        self.metrics.update(y_pred, y_true)
 
         return loss.detach()
 
@@ -72,10 +72,10 @@ class BaseTrainer:
         y_true = y_true.to(self.device, dtype=torch.float32, non_blocking=True)
 
         y_pred = self.model(image)
-        loss = self.criterion(y_true, y_pred)
+        loss = self.criterion(y_pred, y_true)
 
         self.loss_logger(loss.detach())
-        self.metrics(y_true, y_pred)
+        self.metrics.update(y_pred, y_true)
 
         return loss.detach()
 
