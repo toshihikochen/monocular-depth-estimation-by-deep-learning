@@ -14,7 +14,8 @@ class Encoder(nn.Module):
         self.resnet_block_1 = nn.Sequential(*self.resnet[:3])
         self.resnet_block_2 = nn.Sequential(*self.resnet[3:5])
         self.resnet_block_3 = nn.Sequential(*self.resnet[5:6])
-        self.resnet_block_4 = nn.Sequential(*self.resnet[6:])
+        self.resnet_block_4 = nn.Sequential(*self.resnet[6:7])
+        self.resnet_block_5 = nn.Sequential(*self.resnet[7:])
 
     def forward(self, x):
         skips = []
@@ -26,15 +27,18 @@ class Encoder(nn.Module):
         skips.append(x)
         x = self.resnet_block_4(x)
         skips.append(x)
+        x = self.resnet_block_5(x)
+        skips.append(x)
         return skips
 
 
 class Decoder(nn.Module):
     def __init__(self, norm=False, activation=0., dropout=0.):
         super(Decoder, self).__init__()
-        self.conv1 = DoubleConv(2560, 512, kernel_size=3, padding=1, norm=norm, activation=activation, dropout=dropout)
-        self.conv2 = DoubleConv(768, 256, kernel_size=3, padding=1, norm=norm, activation=activation, dropout=dropout)
-        self.conv3 = DoubleConv(320, 64, kernel_size=3, padding=1, norm=norm, activation=activation, dropout=dropout)
+        self.conv1 = DoubleConv(3072, 512, kernel_size=3, padding=1, norm=norm, activation=activation, dropout=dropout)
+        self.conv2 = DoubleConv(1024, 256, kernel_size=3, padding=1, norm=norm, activation=activation, dropout=dropout)
+        self.conv3 = DoubleConv(512, 128, kernel_size=3, padding=1, norm=norm, activation=activation, dropout=dropout)
+        self.conv4 = DoubleConv(192, 64, kernel_size=3, padding=1, norm=norm, activation=activation, dropout=dropout)
         self.out = Out(64, 1)
 
     def forward(self, skips):
@@ -49,13 +53,18 @@ class Decoder(nn.Module):
         x = F.interpolate(x, size=(skips[-4].shape[2], skips[-4].shape[3]), mode='bilinear', align_corners=True)
         x = torch.cat([x, skips[-4]], dim=1)
         x = self.conv3(x)
+
+        x = F.interpolate(x, size=(skips[-5].shape[2], skips[-5].shape[3]), mode='bilinear', align_corners=True)
+        x = torch.cat([x, skips[-5]], dim=1)
+        x = self.conv4(x)
+
         x = self.out(x)
         return x
 
 
-class ResNetUNet(nn.Module):
+class ResUNet(nn.Module):
     def __init__(self, pretrained=False, norm=False, activation=0., dropout=0.):
-        super(ResNetUNet, self).__init__()
+        super(ResUNet, self).__init__()
         self.encoder = Encoder(pretrained)
         self.decoder = Decoder(norm, activation, dropout)
 

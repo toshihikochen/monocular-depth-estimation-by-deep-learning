@@ -15,7 +15,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 
 from datasets import NYU_Depth_V2
-from models import DenseUNet, EfficientUNet, ResNetUNet, VGGUNet
+from models import DenseUNet, EfficientUNet, ResUNet, VGGUNet
 from trainers import EMATrainer
 from transforms import val_transforms
 from utils import Cmapper, Timer
@@ -101,7 +101,7 @@ dataloader = DataLoader(
 if model_name.lower() == "vgg_unet":
     model = VGGUNet(pretrained=False, norm=norm, activation=activation, dropout=dropout)
 elif model_name.lower() == "res_unet":
-    model = ResNetUNet(pretrained=False, norm=norm, activation=activation, dropout=dropout)
+    model = ResUNet(pretrained=False, norm=norm, activation=activation, dropout=dropout)
 elif model_name.lower() == "dense_unet":
     model = DenseUNet(pretrained=False, norm=norm, activation=activation, dropout=dropout)
 elif model_name.lower() == "efficient_unet":

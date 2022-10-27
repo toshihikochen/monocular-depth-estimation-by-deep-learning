@@ -55,7 +55,7 @@ checkpoint = torch.load(checkpoint_path, map_location=device)
 if model_name.lower() == "vgg_unet":
     model = VGGUNet(pretrained=False, norm=norm, activation=activation, dropout=dropout)
 elif model_name.lower() == "res_unet":
-    model = ResNetUNet(pretrained=False, norm=norm, activation=activation, dropout=dropout)
+    model = ResUNet(pretrained=False, norm=norm, activation=activation, dropout=dropout)
 elif model_name.lower() == "dense_unet":
     model = DenseUNet(pretrained=False, norm=norm, activation=activation, dropout=dropout)
 elif model_name.lower() == "efficient_unet":

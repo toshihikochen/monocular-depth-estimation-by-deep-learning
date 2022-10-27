@@ -16,7 +16,7 @@ from torchsummaryX import summary
 from datasets import NYU_Depth_V2
 from losses import Loss
 from metrics import EdgeF1Score, Log10AverageError, StructuralSimilarityIndexMeasure, ThresholdAccuracy
-from models import DenseUNet, EfficientUNet, ResNetUNet, VGGUNet
+from models import DenseUNet, EfficientUNet, ResUNet, VGGUNet
 from trainers import EMATrainer
 from transforms import val_transforms, light_train_transforms, standard_train_transforms, heavy_train_transforms
 
@@ -131,7 +131,7 @@ val_dataloader = DataLoader(
 if model_name.lower() == "vgg_unet":
     model = VGGUNet(pretrained=pretrained, norm=norm, activation=activation, dropout=dropout)
 elif model_name.lower() == "res_unet":
-    model = ResNetUNet(pretrained=pretrained, norm=norm, activation=activation, dropout=dropout)
+    model = ResUNet(pretrained=pretrained, norm=norm, activation=activation, dropout=dropout)
 elif model_name.lower() == "dense_unet":
     model = DenseUNet(pretrained=pretrained, norm=norm, activation=activation, dropout=dropout)
 elif model_name.lower() == "efficient_unet":
