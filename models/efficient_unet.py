@@ -12,6 +12,10 @@ class Encoder(nn.Module):
         self.efficientnet = efficientnet_b0(pretrained=pretrained)
         delattr(self.efficientnet, 'avgpool')
         delattr(self.efficientnet, 'classifier')
+        # replace all swish activations with relu6 for quantization
+        for name, module in self.efficientnet.named_modules():
+            if isinstance(module, nn.SiLU):
+                setattr(self.efficientnet, name, nn.ReLU6(inplace=True))
 
         self.block1 = nn.Sequential(
             self.efficientnet.features[0],
