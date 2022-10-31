@@ -4,6 +4,7 @@ import yaml
 
 import torch
 import torch.nn as nn
+import torch.optim as optim
 from torch.utils.data import DataLoader
 from models import *
 
@@ -28,9 +29,6 @@ device = config["device"]
 
 # model
 model_name = model_config["model_name"]
-norm = model_config["norm"]
-activation = model_config["activation"]
-dropout = model_config["dropout"]
 
 # quantization arguments
 quantization = config["quantization"]
@@ -51,26 +49,48 @@ prefetch_factor = config["prefetch_factor"]
 
 # load checkpoint
 checkpoint = torch.load(checkpoint_path, map_location=device)
-# model name
-if model_name.lower() == "vgg_unet":
-    model = VGGUNet(pretrained=False, norm=norm, activation=activation, dropout=dropout)
-elif model_name.lower() == "res_unet":
-    model = ResUNet(pretrained=False, norm=norm, activation=activation, dropout=dropout)
-elif model_name.lower() == "dense_unet":
-    model = DenseUNet(pretrained=False, norm=norm, activation=activation, dropout=dropout)
-elif model_name.lower() == "efficient_unet":
-    model = EfficientUNet(pretrained=False, norm=norm, activation=activation, dropout=dropout)
+
+# model
+model_name = model_name.lower()
+if "unet" in model_name:
+    norm = model_config["norm"]
+    activation = model_config["activation"]
+    dropout = model_config["dropout"]
+    if model_name == "vgg_unet":
+        model = VGGUNet(pretrained=False, norm=norm, activation=activation, dropout=dropout)
+    elif model_name == "res_unet":
+        model = ResUNet(pretrained=False, norm=norm, activation=activation, dropout=dropout)
+    elif model_name == "dense_unet":
+        model = DenseUNet(pretrained=False, norm=norm, activation=activation, dropout=dropout)
+    elif model_name == "efficient_unet":
+        model = EfficientUNet(pretrained=False, norm=norm, activation=activation, dropout=dropout)
+    else:
+        raise ValueError("Invalid model name")
+elif "fpn" in model_name:
+    single = model_config["single"]
+    if model_name == "vgg_fpn":
+        model = VGGFPN(pretrained=False, single=single)
+    elif model_name == "res_fpn":
+        model = ResFPN(pretrained=False, single=single)
+    elif model_name == "dense_fpn":
+        model = DenseFPN(pretrained=False, single=single)
+    elif model_name == "efficient_fpn":
+        model = EfficientFPN(pretrained=False, single=single)
+    else:
+        raise ValueError("Invalid model name")
 else:
     raise ValueError("Invalid model name")
+
 # select model
 if model_selection == "model":
     weight = checkpoint["model"]
 elif model_selection == "ema":
     weight = checkpoint["ema_model"]
+    model = optim.swa_utils.AveragedModel(model)
 else:
     raise ValueError("model selection error")
 
-model.load_state_dict(weight, strict=False)
+model.load_state_dict(weight)
 model.to(device)
 
 transforms = val_transforms(resolution)

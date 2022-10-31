@@ -14,9 +14,9 @@ import torchmetrics as tm
 from torchsummaryX import summary
 
 from datasets import NYU_Depth_V2
-from losses import Loss
+from losses import Loss, MultiScaleLoss
 from metrics import EdgeF1Score, Log10AverageError, StructuralSimilarityIndexMeasure, ThresholdAccuracy
-from models import DenseUNet, EfficientUNet, ResUNet, VGGUNet
+from models import DenseUNet, EfficientUNet, ResUNet, VGGUNet, DenseFPN, EfficientFPN, ResFPN, VGGFPN
 from trainers import EMATrainer
 from transforms import val_transforms, light_train_transforms, standard_train_transforms, heavy_train_transforms
 
@@ -47,9 +47,6 @@ transforms_level = config["transforms_level"]
 # model
 model_name = model_config["model_name"]
 pretrained = model_config["pretrained"]
-norm = model_config["norm"]
-activation = model_config["activation"]
-dropout = model_config["dropout"]
 # training
 num_epochs = config["num_epochs"]
 batch_size = config["batch_size"]
@@ -128,23 +125,53 @@ val_dataloader = DataLoader(
 )
 
 # model
-if model_name.lower() == "vgg_unet":
-    model = VGGUNet(pretrained=pretrained, norm=norm, activation=activation, dropout=dropout)
-elif model_name.lower() == "res_unet":
-    model = ResUNet(pretrained=pretrained, norm=norm, activation=activation, dropout=dropout)
-elif model_name.lower() == "dense_unet":
-    model = DenseUNet(pretrained=pretrained, norm=norm, activation=activation, dropout=dropout)
-elif model_name.lower() == "efficient_unet":
-    model = EfficientUNet(pretrained=pretrained, norm=norm, activation=activation, dropout=dropout)
+model_name = model_name.lower()
+if "unet" in model_name:
+    norm = model_config["norm"]
+    activation = model_config["activation"]
+    dropout = model_config["dropout"]
+    if model_name == "vgg_unet":
+        model = VGGUNet(pretrained=pretrained, norm=norm, activation=activation, dropout=dropout)
+    elif model_name == "res_unet":
+        model = ResUNet(pretrained=pretrained, norm=norm, activation=activation, dropout=dropout)
+    elif model_name == "dense_unet":
+        model = DenseUNet(pretrained=pretrained, norm=norm, activation=activation, dropout=dropout)
+    elif model_name == "efficient_unet":
+        model = EfficientUNet(pretrained=pretrained, norm=norm, activation=activation, dropout=dropout)
+    else:
+        raise ValueError("Invalid model name")
+
+    criterion = Loss()
+
+elif "fpn" in model_name:
+    single = model_config["single"]
+
+    if model_name == "vgg_fpn":
+        model = VGGFPN(pretrained=pretrained, single=single)
+    elif model_name == "res_fpn":
+        model = ResFPN(pretrained=pretrained, single=single)
+    elif model_name == "dense_fpn":
+        model = DenseFPN(pretrained=pretrained, single=single)
+    elif model_name == "efficient_fpn":
+        model = EfficientFPN(pretrained=pretrained, single=single)
+    else:
+        raise ValueError("Invalid model name")
+
+    if single:
+        criterion = Loss()
+    else:
+        criterion = MultiScaleLoss(num_scale=model.num_feature_maps)
+
 else:
     raise ValueError("Invalid model name")
+
 
 ema_avg = lambda averaged_model_parameter, model_parameter, _: \
     model_parameter * (1 - ema_weight) + averaged_model_parameter * ema_weight
 ema_model = optim.swa_utils.AveragedModel(model, avg_fn=ema_avg)
 optimizer = optim.Adam(model.parameters(), lr=learning_rate, betas=(0.9, 0.999), weight_decay=weight_decay)
 scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.1)
-criterion = Loss()
+
 metrics = tm.MetricCollection({
     "Log10AE": Log10AverageError(full_state_update=False),
     "MAPE": tm.MeanAbsolutePercentageError(full_state_update=False),

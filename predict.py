@@ -15,7 +15,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 
 from datasets import NYU_Depth_V2
-from models import DenseUNet, EfficientUNet, ResUNet, VGGUNet
+from models import DenseUNet, EfficientUNet, ResUNet, VGGUNet, DenseFPN, EfficientFPN, ResFPN, VGGFPN
 from trainers import EMATrainer
 from transforms import val_transforms
 from utils import Cmapper, Timer
@@ -40,9 +40,6 @@ with open(args.model, "r") as f:
 # predicting arguments
 # model
 model_name = model_config["model_name"]
-norm = model_config["norm"]
-activation = model_config["activation"]
-dropout = model_config["dropout"]
 model_selection = config["model_selection"]
 # checkpoints path
 checkpoint_path = config["checkpoint_path"]
@@ -98,14 +95,33 @@ dataloader = DataLoader(
 )
 
 # model
-if model_name.lower() == "vgg_unet":
-    model = VGGUNet(pretrained=False, norm=norm, activation=activation, dropout=dropout)
-elif model_name.lower() == "res_unet":
-    model = ResUNet(pretrained=False, norm=norm, activation=activation, dropout=dropout)
-elif model_name.lower() == "dense_unet":
-    model = DenseUNet(pretrained=False, norm=norm, activation=activation, dropout=dropout)
-elif model_name.lower() == "efficient_unet":
-    model = EfficientUNet(pretrained=False, norm=norm, activation=activation, dropout=dropout)
+model_name = model_name.lower()
+if "unet" in model_name:
+    norm = model_config["norm"]
+    activation = model_config["activation"]
+    dropout = model_config["dropout"]
+    if model_name == "vgg_unet":
+        model = VGGUNet(pretrained=False, norm=norm, activation=activation, dropout=dropout)
+    elif model_name == "res_unet":
+        model = ResUNet(pretrained=False, norm=norm, activation=activation, dropout=dropout)
+    elif model_name == "dense_unet":
+        model = DenseUNet(pretrained=False, norm=norm, activation=activation, dropout=dropout)
+    elif model_name == "efficient_unet":
+        model = EfficientUNet(pretrained=False, norm=norm, activation=activation, dropout=dropout)
+    else:
+        raise ValueError("Invalid model name")
+elif "fpn" in model_name:
+    single = model_config["single"]
+    if model_name == "vgg_fpn":
+        model = VGGFPN(pretrained=False, single=single)
+    elif model_name == "res_fpn":
+        model = ResFPN(pretrained=False, single=single)
+    elif model_name == "dense_fpn":
+        model = DenseFPN(pretrained=False, single=single)
+    elif model_name == "efficient_fpn":
+        model = EfficientFPN(pretrained=False, single=single)
+    else:
+        raise ValueError("Invalid model name")
 else:
     raise ValueError("Invalid model name")
 
@@ -119,11 +135,11 @@ trainer.to(device)
 trainer.load_checkpoint(checkpoint_path)
 
 # predict
-result_cmapper = Cmapper(cmap="plasma" ,maximum=10, minimum=0)
+result_cmapper = Cmapper(cmap="plasma", maximum=10, minimum=0)
 result_color_bar = result_cmapper.color_bar()
 result_color_bar.figure.savefig(os.path.join(outputs_dir, "result_color_bar.png"), bbox_inches="tight")
 
-error_cmapper = Cmapper(cmap="PiYG" ,maximum=10, minimum=-10)
+error_cmapper = Cmapper(cmap="PiYG", maximum=10, minimum=-10)
 error_color_bar = error_cmapper.color_bar()
 error_color_bar.figure.savefig(os.path.join(outputs_dir, "error_color_bar.png"), bbox_inches="tight")
 
@@ -151,4 +167,3 @@ for y_pred, y_true, filenames in trainer.test(dataloader, model_selection=model_
 
 elapsed = timer.stop()
 print(f"Done! time elapsed: {elapsed:.2f} seconds, FPS: {len(dataset) / elapsed:.2f}")
-
