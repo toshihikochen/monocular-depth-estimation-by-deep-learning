@@ -1,3 +1,5 @@
+from typing import List
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -104,7 +106,7 @@ class TopDownSingle(nn.Module):
         self.connection5 = nn.Conv2d(16, 16, kernel_size=1)
         self.out = Out(16, 1)
 
-    def forward(self, skips):
+    def forward(self, skips: List[torch.Tensor]):
         x = self.connection1(skips[4])
         x = F.interpolate(x, size=(skips[3].shape[2], skips[3].shape[3]), mode='nearest')
         x = x + self.connection2(skips[3])

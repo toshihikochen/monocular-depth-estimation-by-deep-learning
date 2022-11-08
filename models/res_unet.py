@@ -1,3 +1,5 @@
+from typing import List
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -41,7 +43,7 @@ class Decoder(nn.Module):
         self.conv4 = DoubleConv(192, 64, kernel_size=3, padding=1, norm=norm, activation=activation, dropout=dropout)
         self.out = Out(64, 1)
 
-    def forward(self, skips):
+    def forward(self, skips: List[torch.Tensor]):
         x = F.interpolate(skips[-1], size=(skips[-2].shape[2], skips[-2].shape[3]), mode='bilinear', align_corners=True)
         x = torch.cat([x, skips[-2]], dim=1)
         x = self.conv1(x)
