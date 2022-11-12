@@ -1,0 +1,9 @@
+device: cpu
+torch_num_threads: 2
+resolution: [240, 320]
+
+fps: 5
+model_path: "../quantization/model.pt"
+
+address: "127.0.0.1"
+port: 8000
